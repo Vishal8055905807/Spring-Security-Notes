@@ -57,9 +57,9 @@ How to override Spring Security Default Credentials
 spring.security.user.name=ashokit
 spring.security.user.password=ashokit@123
 
-====================================================
+===============================================
 Spring Security with In-Memory Authentication
-====================================================
+===============================================
 
 -> In Memory Authentication means storing user credentials in the program for Authentication
    Purpose.
@@ -78,21 +78,21 @@ public PasswordEncoder pwdEncoder() {
 @Bean
 public InMemoryUserDetailsManager inMemoryUsers() {
 	
-	UserDetails u1 = User.builder()
+	                   UserDetails u1 = User.builder()
 						.username("Vishal")
 						.password(pwdEncoder().encode("vishal123"))
 						.roles("ADMIN")
 						.build();
 	
 	
-	UserDetails u2 = User.builder()
+	                   UserDetails u2 = User.builder()
 						.username("nitin")
 						.password(pwdEncoder().encode("nitin123"))
 						.roles("MANAGER")
 						.build();
 	
 
-	UserDetails u3 = User.builder()
+	                   UserDetails u3 = User.builder()
 						.username("Sharan")
 						.password(pwdEncoder().encode("sharan123"))
 						.roles("CO-MANAGER")
@@ -137,7 +137,7 @@ How to secure specific URL Patterns
 
 ##### Note: SecurityFilterChain defines security rules for your Spring Boot application. #####
 
-```java
+```
 @Bean
 public SecurityFilterChain securityConfig(HttpSecurity http) throws Exception {
 
@@ -148,9 +148,9 @@ public SecurityFilterChain securityConfig(HttpSecurity http) throws Exception {
     http.authorizeHttpRequests(req ->
             req.requestMatchers("/public/**").permitAll()
                .anyRequest().authenticated())
-        .httpBasic(Customizer.withDefaults())
-        .formLogin(Customizer.withDefaults());
-
+               .httpBasic(Customizer.withDefaults())
+               .formLogin(Customizer.withDefaults());
+ 
     return http.build();
 }
 
@@ -158,7 +158,7 @@ public SecurityFilterChain securityConfig(HttpSecurity http) throws Exception {
 Note: SecurityFilterChain will intercept with every requests that hits and filter it based on the given configuration
 
 ===============================
-Roles based Authentication
+Role  based Authentication
 ===============================
 
 ````````````````````````````````````````````
@@ -272,3 +272,65 @@ public SecurityFilterChain securityConfig(HttpSecurity http) {
 }
 
 `````````````````````
+========================================================
+Login and Registration using Spring Security
+========================================================
+
+=> Develop springboot-rest-api with below 2 functionalities using Spring Security.
+
+       1) User Registration (name, email, pwd)
+
+       2) User Login (email, pwd)
+
+Note-1: When user register, we need to store user data in database table by encrypting user pwd.
+
+Note-2: When user try to login, if credentials are valid send welcome msg as response. If credentials are
+         invalid then send "Invalid Credential" msg as response.
+
+
+
+=========================
+Development Process
+=========================
+
+## 1) Create Boot app with required dependencies ##
+
+        a) web-starter
+        b) data-jpa-starter
+        c) mysql
+        d) security-starter
+        e) devtools
+	f) lombok
+
+## 2) Configure Data Source properties in application.properties file
+
+## 3) Create Entity class & Repository interface 
+
+## 4) Create Service class and implement UserDetailsService interface 
+
+## 5) Create Security Config Class 
+
+        - PwdEncoder
+        - AuthProvider
+        - AuthManager
+        - SecurityFilterChain
+
+## 6) Create RestController with required methods
+
+	- /register
+	- /login
+
+## 7) Run the application and test it using postman
+
+
+postman/UI ---> REST Controller ---> Auth Manager(Pre-defined) ---> Auth Provider(Pre-defined) ---> UserDetailsService ---> Repository ---> DB
+
+Why Use BCryptPasswordEncoder --> BCrypt hashes the password so the original password cannot be recovered from the database. Even if the DB is leaked, the actual passwords are not directly exposed.
+
+
+why pwd encoder is needed in AuthProvider
+how AuthProvider and AuthManger are connected, cant see in code 
+
+
+
+
