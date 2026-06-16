@@ -327,9 +327,78 @@ postman/UI ---> REST Controller ---> Auth Manager(Pre-defined) ---> Auth Provide
 
 Why Use BCryptPasswordEncoder --> BCrypt hashes the password so the original password cannot be recovered from the database. Even if the DB is leaked, the actual passwords are not directly exposed.
 
+=========================
+Spring Boot with JWT
+=========================
 
-why pwd encoder is needed in AuthProvider
-how AuthProvider and AuthManger are connected, cant see in code 
+-> JWT stands for JSON Web Tokens.
+
+-> JWT official Website : https://jwt.io/
+
+-> Below is the sample JWT Token
+
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG91IiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30
+
+-> JWT contains below 3 parts
+
+        1) Header
+
+        2) Payload
+
+        3) Signature
+
+Note: JWT 3 parts will be seperated by using dot(.)
+
+Note: Client application should send JWT Token to provider in below format
+
+        Authorization=Bearer <JWT>
+
+=> To implement JWT Token Based API we will develop below 3 classes mainly
+
+1) JWT Token Generation Class
+
+        - generateToken()
+
+        - validateToken()
+
+
+2) JWT Token Validation Filter Class : OncePerRequestFilter
+
+        - Check Authorization header presence in the request.
+
+        - Retrieve Bearer Token From the header
+
+        - Validate Token
+
+        - If token is valid, update security context to process the request
+
+
+3) AppSecurityConfig class to customize SecurityFilterChain
+
+        - permit "/api/register" & "/api/login" urls
+
+        - Authenticate other requests using Filter
+
+
+
+<dependency>
+    <groupId>io.jsonwebtoken</groupId>
+    <artifactId>jjwt-api</artifactId>
+    <version>0.11.5</version>
+</dependency>
+
+<dependency>
+    <groupId>io.jsonwebtoken</groupId>
+    <artifactId>jjwt-impl</artifactId>
+    <version>0.11.5</version>
+</dependency>
+
+<dependency>
+    <groupId>io.jsonwebtoken</groupId>
+    <artifactId>jjwt-jackson</artifactId>
+    <version>0.11.5</version>
+</dependency>
+
 
 
 
