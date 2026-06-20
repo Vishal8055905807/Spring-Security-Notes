@@ -364,7 +364,7 @@ Note: Client application should send JWT Token to provider in below format
 
 2) JWT Token Validation Filter Class : OncePerRequestFilter
 
-        - Check Authorization header presence in the request.
+        - Check Authorization header present in the request.
 
         - Retrieve Bearer Token From the header
 
@@ -379,6 +379,8 @@ Note: Client application should send JWT Token to provider in below format
 
         - Authenticate other requests using Filter
 
+````````````````````````````````````````````````````````````````````````````
+//Add below dependencies to work with JWT
 
 
 <dependency>
@@ -399,7 +401,138 @@ Note: Client application should send JWT Token to provider in below format
     <version>0.11.5</version>
 </dependency>
 
+````````````````````````````````````````````````````````````````````````````
+//Code to be wrttien in JWTService class :
+
+//Token validation logic
+
+public Boolean validateToken(String token, UserDetails userDetails) {  
+
+//Username extracted from JWT AND Username fetched from DB is compared
+
+    final String username = extractUsername(token);
+    return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+}
+
+private Boolean isTokenExpired(String token){
+
+return extractUsername(token).before(new Date());
+
+}
+
+public String extractUsername(String token) {
+    return extractClaim(token, Claims::getSubject);
+}
+
+public Date extractExpiration(String token) {
+    return extractClaim(token, Claims::getExpiration);
+}
+
+public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+    final Claims claims = extractAllClaims(token);
+    return claimsResolver.apply(claims);
+}
+
+private Claims extractAllClaims(String token) {
+    return Jwts
+            .parserBuilder()
+            .setSigningKey(getSignKey())
+            .build()
+            .parseClaimsJws(token)
+            .getBody();
+}
+
+//Token craetion logic
+
+public static final String SECRET = "357638792F423F4428472B4B6250655368566D597133743677397A2443264629";
+ 
+
+public String generateToken(String username) {    //public method to expose below 2 private methods 	
+    Map<String, Object> claims = new HashMap<>();  //whatever data we want to send in JWT payload we can set that in claims here
+    return createToken(claims, username);
+}
+
+private String createToken(Map<String, Object> claims, String username) {
+    return Jwts.builder()
+            .setClaims(claims)         //JWT header
+            .setSubject(username)      //JWT payload (usualy it is kept email)
+            .setIssuedAt(new Date(System.currentTimeMillis()))    //JWT creation time
+            .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 1))      //JWT validity period
+            .signWith(getSignKey(), SignatureAlgorithm.HS256)    //JWT signature
+            .compact();
+}
+
+private Key getSignKey() {      // coverts SECRET string into JWT signature
+    byte[] keyBytes = Decoders.BASE64.decode(SECRET);
+    return Keys.hmacShaKeyFor(keyBytes);
+}
+`````````````````````````````````````````````````````````````````````````````````````````````````````
+
+==================================
+Spring Boot with OAuth 2.0
+==================================
+
+=> OAuth 2.0 is an open standard authorization framework that allows third-party applications to access a
+user's resources on another service, without sharing the user's password.
+
+=> Instead of giving your password to every app or website that wants to use your data (like Google
+contacts or Facebook photos), OAuth 2.0 lets you approve access using a special token.
+
+=> It is commonly used in "Login in with Google / Login with Facebook / Login with GitHub"
 
 
+==================================
+How It Works (Simplified Flow):
+==================================
+
+Step-1 : Visit Hacker Rank website
+
+Step-2 : Select sign in with google (redirect to google)
+
+Step-3 : Google will send login page for authentication
+
+Step-4 : Enter Google Acc credentials
+
+Step-5 : Verify credentials are valid or not
+
+Step-6 : If valid, send token to Hacker Rank
+
+Step-7 : Hacker will re-direct user to dashboard based on
+         information given by google (name, ...)
+
+=========================
+Development Process
+=========================
+
+# 1) Create oAuth app in github.com
+
+(Login --> Profile -> Settings --> Developer Settings --> OAuth Apps --> Create App --> Copy Client ID & Client Secret)
+
+        Client ID : Ov23li5bk0oAtmycp6Pj
+
+        Client Secret : 310e1bd9a9b3fce19969aad64bb6343b565d8d31
+
+
+# 2) Create Spring Boot application with below dependencies
+
+        a) web-starter
+        b) security-starter
+        c) oauth-client
+
+
+# 3) Create Rest Controller with method
+
+# 4) Configure GitHub OAuth App client id & client secret in application.yml file like below
+
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            clientId:
+            clientSecret:
+
+# 5) Run the application and test it.
 
 
